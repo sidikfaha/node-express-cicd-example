@@ -1,0 +1,64 @@
+name: Déploiement de l'API
+on:
+  push:
+    branches:
+      - main
+
+env:
+  image: ghcr.io/sidikfaha/${{ github.event.repository.name }}
+
+jobs:
+  build:
+    name: Build and push artefact
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Install dependencies
+        run: |
+          # Les scripts d'installation de dépedance ici
+          exit 0
+      - name: Building
+        run: |
+          docker build -t ${{ env.image }}:latest -t ${{ env.image }}:${GITHUB_SHA::7} .
+      - name: Push to registry
+        run: |
+          echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.repository_owner }} --password-stdin
+          docker push ${{ env.image }}:latest
+          docker push ${{ env.image }}:${GITHUB_SHA::7}
+
+  unit-test:
+    name: Unit test
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Running unit tests
+        run: |
+          # Exécution des tests unitaires
+          exit 0
+
+  e2e-test:
+    name: E2E test
+    runs-on: ubuntu-22.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Running e2e tests
+        run: |
+          # Exécution des tests d'intégration
+          exit 0
+  
+  deploy:
+    needs:
+      - unit-test
+      - e2e-test
+    runs-on: ubuntu-22.04
+    name: Deploy
+    steps:
+      - name: Deploiement
+        run: |
+          # SSH sur le serveur et exécutio des commandes docker pour mettre à jour l'API
+          exit 0
